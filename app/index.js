@@ -11,6 +11,13 @@ import './app.global.css';
 const store = configureStore();
 const history = syncHistoryWithStore(hashHistory, store);
 
+// import Reactotron from 'reactotron-react-js'
+
+// Reactotron
+//   .configure() // we can use plugins here -- more on this later
+//   .connect() // let's connect!
+
+
 render(
   <Provider store={store}>
     <Router history={history} routes={routes} />
