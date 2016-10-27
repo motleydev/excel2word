@@ -1,0 +1,21 @@
+.button {
+	-webkit-app-region: no-drag;
+	background: linear-gradient(20deg, #000000 5%, #252525);
+	padding:20px;
+	border-radius: 4px;
+	color:white;
+	flex: 0 1 25%;
+	margin: 20px;
+	text-align:center;
+	box-shadow: 0 1px 20px -5px rgba(0, 0, 0, 0.75);
+}
+
+.button:hover {
+	background: linear-gradient(20deg, #000000 40%, #252525);
+	box-shadow: 0 1px 10px -5px rgba(0, 0, 0, 0.75);
+}
+
+.button p {
+	margin: 0;
+	padding: 0;
+}
