@@ -48,10 +48,17 @@ export default class Home extends Component {
     dialog.showOpenDialog((fileName) => {
 
       const projects = getData(fileName[0], 1)
-      const company = getData(fileName[0], 3)
 
-      console.table(projects)
-      console.log(company)
+      // Remove items without names
+      for (let project in projects) {
+        if (!projects[project].name) {
+          delete projects[project]
+        }
+      }
+      
+      const company = getData(fileName[0], 3)
+      
+      console.log(projects)
 
       this.setState({projects: projects, company: company})
 
@@ -78,31 +85,61 @@ export default class Home extends Component {
 
       doc.setOptions({parser: angularParser});
 
-      let invoices = projects.map((project, index) => {
+      let projects = {...this.state.projects}
 
-          let result = new Object
+      let invoices = []
+
+      for (let entry in this.state.projects) {
+
+        let project = this.state.projects[entry]
+
+          let result = new Object({project: {}})
 
           function dayHour (obj1, obj2) {
-            return {t: obj1, chf: obj2}
+
+            let a = obj1 ? obj1 : 0
+            let b = obj2 ? obj2 : 0 
+            return {
+              t: a,
+              chf: b
+            }
           }
 
-          result.ssb = dayHour()
-          result.bsd = dayHour()
-          result.dp = dayHour()
-          result.drit = dayHour()
-          result.project.number = ''
-          result.project.name = ''
+          result.ssb = dayHour(
+            project['strategie-senior-beratung-t'],
+            project['strategie-senior-beratung-chf'])
+          result.bsd = dayHour(
+            project['beratung-senior-design-text-t'],
+            project['beratung-senior-design-chf'])
+          result.pd = dayHour(
+            project['projektmanagement-design-t'],
+            project['projektmanagement-design-chf'])
+          result.drit = dayHour(0,
+            project['rngsumme-externe-inkl-mwst-chf'])
+          result.project.number = project.arbeitspaket
+          result.project.name = project.name
           result.project.sum = [
             result.ssb,
             result.bsd,
-            result.dp].reduce((prev, curr) => {
-              return prev.chf + curr.chf
+            result.pd,
+            result.drit].reduce((prev, curr) => {
+              return prev + (curr ? curr.chf : 0)
             }, 0)
 
-        return result
-      })
-
+        invoices.push(result)
+      }
+      let {company, name, department, address, zip, city, head, short} =
+        this.state.company['B']
+      
       doc.setData({
+        company: company,
+        name: name,
+        department: department,
+        address: address,
+        zip: zip,
+        city: city,
+        head: head, 
+        short: short,
         invoices: invoices
       });
 
@@ -111,12 +148,8 @@ export default class Home extends Component {
 
       var buf = doc.getZip().generate({type:"nodebuffer"});
 
-      console.log(buf)
-
       fs.writeFileSync(fileName+'.docx', buf);
 
-      // var out = fs.createWriteStream ( fileName+'.docx' );
-      // docx.generate ( out );
     })
   }
 
