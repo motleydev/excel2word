@@ -7,6 +7,8 @@ import officegen from 'officegen'
 
 import Button from '../ui/button/Button'
 
+import getData from '../utils/getData'
+
 var expressions = require('angular-expressions');
 
 var angularParser = function(tag) {
@@ -20,29 +22,6 @@ var Docxtemplater = require('docxtemplater');
 const {dialog} = require('electron').remote
 
 import fs from 'fs';
-var xlsx = require('xlsx')
-
-var docx = officegen ( 'docx' );
-var pObj = docx.createP ();
-
-function cleanText(value){
-  value = value.toLowerCase();
-  value = value.replace(/u00E4/g, 'ae');
-  value = value.replace(/u00F6/g, 'oe');
-  value = value.replace(/u00FC/g, 'ue');
-  value = value.replace(/ß/g, 'ss');
-  value = value.replace(/ /g, '-');
-  value = value.replace(/\./g, '');
-  value = value.replace(/,/g, '');
-  value = value.replace(/\(/g, '');
-  value = value.replace(/\)/g, '');
-  return value;
-}
-
-pObj.addText ( 'Simple' );
-pObj.addText ( ' with color', { color: '000088' } );
-pObj.addText ( ' and back color.', { color: '00ffff', back: '000088' } );
-
 
 
 export default class Home extends Component {
@@ -59,57 +38,31 @@ export default class Home extends Component {
     this.pickTemplate = this.pickTemplate.bind(this);
   }
 
+  componentDidMount() {
+    let today = new Date()
+    this.setState({date: today})
+  }
+
   loadFile() {
     // Open Book
     dialog.showOpenDialog((fileName) => {
-       
-      var workbook = xlsx.readFile(fileName[0]);
-      var cells = workbook.Sheets[workbook.SheetNames[0]];
-      var columns = new Set();
 
+      const projects = getData(fileName[0], 1)
+      const company = getData(fileName[0], 3)
 
-      // Remove duplicates and condense only top level
-      // project vals
-      Object.keys(cells).forEach((key) => {
-        if (key.search(/\!/) === -1) {
-          columns.add(key.split(/\d/i)[0])
-        }
-      })
+      console.table(projects)
+      console.log(company)
 
-      // Remove the "values" column from projects.
-      columns.delete('A');
-      
-      var projects = {}
-
-      // Assign each column to an entry on project
-      // give that an array value
-      for (let col of columns) {
-        projects[col] = {export: true}
-      }
-
-      // Loop all the cells
-      Object.keys(cells).forEach((key) => {
-        let alpha = key.split(/\d/i)[0];
-        let numeric = key.split(/[A-Z]{1,}/)[1]
-        
-        if (columns.has(alpha)) {
-
-          let newKey = cleanText(cells[`A${numeric}`].w)
-
-          projects[alpha][newKey] = (cells[key].v)
-        }
-      })
-
-      this.setState({projects: projects})
+      this.setState({projects: projects, company: company})
 
     })
   }
 
   pickTemplate() {
     // Open Book
-    
+
     dialog.showOpenDialog((fileName) => {
-       
+
     var content = fs
       .readFileSync(fileName[0], "binary");
 
@@ -122,43 +75,40 @@ export default class Home extends Component {
     dialog.showSaveDialog((fileName) => {
 
       var doc = new Docxtemplater(this.state.template);
-      
+
       doc.setOptions({parser: angularParser});
 
-      doc.setData({
-        invoices: [
-        {
-          date: new Date(),
-          company: "Basler Kantonalbank",
-          name: "Mathias von Wartburg",
-          department: "Marketing",
-          address: "Aeschenvorstadt 41",
-          zip: 4051,
-          city: "Basel",
-          ssb: {
-            t: ,
-            chf:
-          },
-          bsd: {
-            t: ,
-            chf:
-          },
-          dp: {
-            t: ,
-            chf:
-          },
-          drit: ,
-          sum: 0,
+      let invoices = projects.map((project, index) => {
 
-        }],
-        project: {
-          name: "Bildwelt"
-        }
+          let result = new Object
+
+          function dayHour (obj1, obj2) {
+            return {t: obj1, chf: obj2}
+          }
+
+          result.ssb = dayHour()
+          result.bsd = dayHour()
+          result.dp = dayHour()
+          result.drit = dayHour()
+          result.project.number = ''
+          result.project.name = ''
+          result.project.sum = [
+            result.ssb,
+            result.bsd,
+            result.dp].reduce((prev, curr) => {
+              return prev.chf + curr.chf
+            }, 0)
+
+        return result
+      })
+
+      doc.setData({
+        invoices: invoices
       });
- 
-    
+
+
       doc.render();
- 
+
       var buf = doc.getZip().generate({type:"nodebuffer"});
 
       console.log(buf)
@@ -172,7 +122,7 @@ export default class Home extends Component {
 
   cancelProject(project) {
     let newProjectState = {...this.state.projects}
-    
+
     newProjectState[project].export = !this.state.projects[project].export
     this.setState({projects: newProjectState})
   }
