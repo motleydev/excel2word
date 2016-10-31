@@ -1,20 +1,6 @@
 var xlsx = require('xlsx')
 import fs from 'fs';
-
-
-function cleanText(value){
-  value = value.toLowerCase();
-  value = value.replace(/u00E4/g, 'ae');
-  value = value.replace(/u00F6/g, 'oe');
-  value = value.replace(/u00FC/g, 'ue');
-  value = value.replace(/ß/g, 'ss');
-  value = value.replace(/ /g, '-');
-  value = value.replace(/\./g, '');
-  value = value.replace(/,/g, '');
-  value = value.replace(/\(/g, '');
-  value = value.replace(/\)/g, '');
-  return value;
-}
+import cleanText from './cleanText';
 
 const getData = (fileName, sheetIndex) => {
 

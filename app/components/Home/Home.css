@@ -1,0 +1,65 @@
+.container {
+	flex: 0 0 100%;
+	display:flex;
+	justify-content: center;
+	align-items: stretch;
+	z-index: 10;
+	flex-wrap: wrap;
+}
+
+.controls {
+	flex: 0 0 100%;
+	justify-content:space-around;
+  min-height:250px;
+}
+
+.controls > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  height:128px;
+}
+
+.controls > div > p {
+  flex: 0 0 100%;
+  margin: 0;
+  align-self: center;
+}
+
+.canvas {
+  flex: 0 0 100%;
+  min-height: 400px;
+  display: flex;
+}
+
+
+.sheets {
+  padding-top: 32px;
+  padding-bottom: 32px;
+  flex: 0 0 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  overflow: scroll;
+}
+
+.doneButton {
+  flex: 0 0 100%;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer {
+  flex: 0 0 100%;
+  // align-self: flex-end;
+  display:flex;
+  align-items: center;
+  justify-content: center;
+  min-height:180px;
+}

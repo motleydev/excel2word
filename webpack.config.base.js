@@ -12,6 +12,13 @@ export default validate({
       loaders: ['babel-loader'],
       exclude: /node_modules/
     }, {
+      test: /(\.js|\.jsx)$/,
+      loader: 'babel',
+      include: [path.resolve(__dirname, './node_modules/react-icons/io')],
+      query: {
+          presets: ['es2015', 'react']
+      }
+    }, {
       test: /\.json$/,
       loader: 'json-loader'
     }, {
@@ -35,7 +42,7 @@ export default validate({
   },
 
   plugins: [
-    
+
   ],
 
   node: {

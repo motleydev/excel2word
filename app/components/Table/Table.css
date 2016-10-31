@@ -1,0 +1,62 @@
+.projectList {
+
+	flex: 0 0 100%;
+	display:flex;
+	flex-wrap: wrap;
+
+}
+
+
+.projectList > div > div {
+	flex: 0 0 100%;
+	display:flex;
+  min-height: 25px;
+  text-align: left;
+	align-items: stretch;
+	-webkit-app-region: no-drag;
+}
+
+.table {
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  font-family: GeorgiaPro-Regular;
+  font-size: 12px;
+  color: #000000;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 0 -1px;
+  overflow:scroll;
+  height:400px;
+  position: relative;
+}
+
+.tableHeader {
+  position: fixed;
+  width: calc(100% + 2px);
+  background:white;
+  border-bottom: 1px solid #E2E2E2;
+  border-top: 0;
+}
+
+.tableHeader + .tableData {
+  margin-top: 23px;
+}
+
+.projectList > div > div > span {
+	margin:0;
+	padding:0;
+	text-align: left;
+  border: 1px solid #E2E2E2;
+  flex: 1 0 auto;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-bottom: -1px;
+  margin-right:-1px;
+  display:flex;
+  align-items: center;
+}
+
+.projectList > div > div {
+  overflow:hidden;
+}
