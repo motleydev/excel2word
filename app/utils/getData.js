@@ -2,10 +2,26 @@ var xlsx = require('xlsx')
 import fs from 'fs';
 import cleanText from './cleanText';
 
-const getData = (fileName, sheetIndex) => {
 
-let workbook = xlsx.readFile(fileName);
-  let cells = workbook.Sheets[workbook.SheetNames[sheetIndex]];
+function clone(obj){
+   if(obj == null || typeof(obj) != 'object')
+      return obj;
+
+   var temp = obj.constructor();
+
+   for(var key in obj)
+       temp[key] = clone(obj[key]);
+   return temp;
+}
+
+const getData = (fileName, sheetIndex, opts) => {
+
+  let {serialized, schema} = opts
+
+  const dataSet = {}
+
+  let workbook = xlsx.readFile(fileName)
+  let cells = workbook.Sheets[workbook.SheetNames[sheetIndex]]
   let columns = new Set();
 
   // Remove duplicates and condense only top level
@@ -16,16 +32,22 @@ let workbook = xlsx.readFile(fileName);
     }
   })
 
+
+
+  let columnLabels = new Set();
+
+
   // Remove the "values" column from dataSet.
   columns.delete('A');
-
-  var dataSet = {}
 
   // Assign each column to an entry on project
   // give that an array value
   for (let col of columns) {
     dataSet[col] = {export: true}
   }
+
+
+return new Promise((resolve, reject) => {
 
   // Loop all the cells
   Object.keys(cells).forEach((key) => {
@@ -34,13 +56,71 @@ let workbook = xlsx.readFile(fileName);
 
     if (columns.has(alpha)) {
 
-      let newKey = cleanText(cells[`A${numeric}`].w)
+      if( cells[`A${numeric}`] == 'undefined' ||
+          cells[`A${numeric}`] == null ) {
 
-      dataSet[alpha][newKey] = (cells[key].v)
+        reject({
+          message: 'This message cannot be parsed',
+          error: true
+        })
+
+      } else {
+
+        // Add Labels
+        columnLabels.add(cleanText(cells[`A${numeric}`].w))
+
+        let newKey = cleanText(cells[`A${numeric}`].w)
+        dataSet[alpha][newKey] = (cells[key].v)
+
+      }
+
     }
   })
 
-  return dataSet;
+
+  // if (schema) {
+
+
+  //   function schemaMap(dest, source) {
+
+  //     Object.keys(dest).map((key)=> {
+
+  //       if (typeof dest[key] === 'object') {
+  //         schemaMap(dest[key], source)
+  //       } else {
+  //         dest[key] = source[dest[key]]
+  //       }
+  //     })
+  //     return dest
+
+  //   }
+
+
+
+  //   // Loop each project
+  //   for (let dataEntry in dataSet) {
+
+  //     // Get a copy of the schema object
+  //     let schemaObj = clone(schema)
+  //     let project = dataSet[dataEntry]
+  //     let parsedObj = schemaMap(schemaObj, project)
+
+  //     dataSet[dataEntry] = parsedObj
+
+  //   }
+
+  // }
+
+  let objKeys = Object.keys(dataSet)
+
+  let result = serialized
+    ? dataSet
+    : dataSet[objKeys[0]]
+
+  resolve({entries: result, labels: Array.from(columnLabels)});
+
+ })
+
 }
 
 

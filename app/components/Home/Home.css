@@ -8,18 +8,32 @@
 }
 
 .controls {
+  display: flex;
 	flex: 0 0 100%;
-	justify-content:space-around;
   min-height:250px;
+  align-items: center;
+  align-content: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.controls > div > div {
+  margin: 12px auto 18px;
 }
 
 .controls > div {
+  // flex: 0 0 100%;
+  // display:flex;
+  // flex-wrap: wrap;
+}
+
+.controls > div {
+  flex: 0 0 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   text-align: center;
-  height:128px;
 }
 
 .controls > div > p {

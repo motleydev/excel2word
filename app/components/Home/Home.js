@@ -34,7 +34,8 @@ export default class Home extends Component {
 
     this.state = {
       projects: {},
-      company: {}
+      company: {},
+      activeTable: 0
     }
 
     this.loadFile = this.loadFile.bind(this);
@@ -53,18 +54,18 @@ export default class Home extends Component {
     // Open Book
     dialog.showOpenDialog((fileName) => {
 
-      const projects = getData(fileName[0], 1)
+      // const projects = getData(fileName[0], 1)
 
       const sheets = getSheets(fileName[0])
 
       // Remove items without names
-      for (let project in projects) {
-        if (!projects[project].name) {
-          delete projects[project]
-        }
-      }
+      // for (let project in projects) {
+      //   if (!projects[project].name) {
+      //     delete projects[project]
+      //   }
+      // }
 
-      const company = getData(fileName[0], 3)
+      // const company = getData(fileName[0], 3)
 
       // this.setState({projects: projects, company: company})
       this.setState({sheets: sheets, file: fileName[0]})
@@ -99,12 +100,83 @@ export default class Home extends Component {
   }
 
   saveFile() {
+
+    // let schema = {
+    //         sbb: {
+    //           t:'strategie-senior-beratung-t',
+    //           chf: 'strategie-senior-beratung-chf'
+    //         },
+
+    //         bsd: {
+    //           t: 'beratung-senior-design-text-t',
+    //           chf: 'beratung-senior-design-chf'
+    //         },
+
+    //         pd: {
+    //           t: 'projektmanagement-design-t',
+    //           chf: 'projektmanagement-design-chf'
+    //         },
+
+    //         drit: {
+    //           chf: 'rngsumme-externe-inkl-mwst-chf'
+    //         },
+
+    //         project: {
+    //           number: 'arbeitspaket',
+    //           name: 'name'
+    //         }
+
+    //       }
+
+
+  //    if (schema) {
+
+
+  //   function schemaMap(dest, source) {
+
+  //     Object.keys(dest).map((key)=> {
+
+  //       if (typeof dest[key] === 'object') {
+  //         schemaMap(dest[key], source)
+  //       } else {
+  //         dest[key] = source[dest[key]]
+  //       }
+  //     })
+  //     return dest
+
+  //   }
+
+
+
+  //   // Loop each project
+  //   for (let dataEntry in dataSet) {
+
+  //     // Get a copy of the schema object
+  //     let schemaObj = clone(schema)
+  //     let project = dataSet[dataEntry]
+  //     let parsedObj = schemaMap(schemaObj, project)
+
+  //     dataSet[dataEntry] = parsedObj
+
+  //   }
+
+  // }
+
+
+
     dialog.showSaveDialog((fileName) => {
 
       var doc = new Docxtemplater(this.state.template);
 
       doc.setOptions({parser: angularParser});
 
+      // Loop all sheets
+        // If schema present, process data array by schema
+        // If none serialized return first object onto master data object
+        // Add sheet by named key onto master data object
+      // set Data
+
+      let sheets = {...this.state.parsedSheets}
       let projects = {...this.state.projects}
 
       let invoices = []
@@ -123,34 +195,6 @@ export default class Home extends Component {
               t: a,
               chf: b
             }
-          }
-
-          let schema = {
-            sbb: {
-              t:'strategie-senior-beratung-t',
-              chf: 'strategie-senior-beratung-chf'
-            },
-
-            bsd: {
-              t: 'beratung-senior-design-text-t',
-              chf: 'beratung-senior-design-chf'
-            },
-
-            pd: {
-              t: 'projektmanagement-design-t',
-              chf: 'projektmanagement-design-chf'
-            },
-
-            drit: {
-              t: 0,
-              chf: 'rngsumme-externe-inkl-mwst-chf'
-            },
-
-            project: {
-              number: 'arbeitspaket',
-              name: 'name'
-            }
-
           }
 
 
@@ -203,19 +247,31 @@ export default class Home extends Component {
   }
 
   processSheets () {
-    // let newSheets = [...this.state.sheets]
+
+
+    // Set up blank Array
     let selectedSheets = []
+
+    // Get only my selected sheets
     this.state.sheets.map((sheet) => {
       if (sheet.selected) {
         selectedSheets.push(sheet)
       }
     })
 
-    selectedSheets.map((sheet, index) => {
-      sheet.data = getData(this.state.file, sheet.sheet)
+    // Process those sheets async
+    let finalResult = selectedSheets.map((worksheet, index) => {
+
+      let opts = {
+        serialized: worksheet.serialized
+      }
+
+       getData(this.state.file, worksheet.sheet, opts).then(
+        result => worksheet.data = result
+        ).catch((err) => worksheet.data =  err)
     })
 
-    this.setState({parsedSheets: selectedSheets})
+    this.setState({parsedSheets: finalResult})
   }
 
   // cancelProject(project) {
@@ -225,6 +281,10 @@ export default class Home extends Component {
   //   this.setState({projects: newProjectState})
   // }
 
+  componentDidUpdate() {
+    console.count("updated")
+  }
+
   render() {
 
     const {projects} = this.state
@@ -233,26 +293,40 @@ export default class Home extends Component {
       <div className={styles.container}>
 
         <div className={styles.controls}>
-          <div>
+        <div>
+
           <p>Step One</p>
             <Button onClick={this.loadFile}>Import</Button>
-          </div>
-          <div>
+
+
           <p>Step Two</p>
             <Button onClick={this.pickTemplate}>Template</Button>
+
           </div>
         </div>
 
         <div className={styles.canvas}>
 
-        {1+1 == 3 &&<Table projects={projects} />}
+        {this.state.parsedSheets &&
+          <div>
+          <div>
 
-        {this.state.sheets &&
+          {this.state.parsedSheets.map( (sheet, index) => {
+            return <div key={index}>{sheet.name}</div>
+          } )}
+
+          </div>
+            <Table projects={this.state.parsedSheets[this.state.activeTable]} />
+          </div>}
+
+        {(this.state.sheets && !this.state.parsedSheets) &&
           <div className={styles.sheets}>
             {this.state.sheets.map((sheet, index) => {
-              return <Sheet key={index} index={index} sheet={sheet} updateSheet={this.updateSheet}/>
+              return <Sheet key={index} index={index} sheet={sheet}
+              updateSheet={this.updateSheet}/>
             })}
-            <div className={styles.doneButton}><Button onClick={this.processSheets}>Done!</Button></div>
+            <div className={styles.doneButton}>
+            <Button onClick={this.processSheets}>Done!</Button></div>
           </div>}
 
         </div>

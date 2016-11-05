@@ -1,0 +1,11 @@
+	☐	Add promise support to getData.js
+	☐	Add error handling to home.js
+	☐	Add error handling to UI
+	☐	Add Schema support to getData.js
+	☐	Add Sheet display to table view
+	☐	add non serialized display to table view
+	☐	fix header ui
+	☐	add wolf
+	☐	clean up code
+	☐	add comments
+	☐	add some unit tests

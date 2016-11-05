@@ -14,23 +14,57 @@ export default class Table extends Component {
 
   constructor(props) {
     super(props)
+
+    this.state = {
+      columns: [],
+      selectedColumns: []
+
+    }
+  }
+
+  componentDidMount() {
+    // if (this.props.projects.data && this.props.projects.data.labels) {
+
+    //   let labels = this.props.projects.data.labels.map((label) => {
+    //     return {value: label, chose: false}
+    //   })
+
+    //   console.log(labels)
+
+    //   this.setState({columns: labels})
+
+    // }
   }
 
   render() {
+    console.log(this.props)
+
+    let {projects} = this.props
+    let {entries, labels} = projects.data
 
     return (
         <div className={styles.projectList}>
-          <div className={styles.table}>
 
-          <div className={styles.tableHeader}>
+        { labels &&
+          <div className={styles.labels}>
+            {labels.map((column, index) => {
+              return <div key={index}>{column}</div>
+            })}
+          </div>}
+
+
+        <div className={styles.table}>
+
+          {this.state.selectedColumns.length > 0 && <div className={styles.tableHeader}>
             <span style={{flex: '1 1 5%'}}>Export</span>
             <span style={{flex: '2 1 20%'}}>Name</span>
             <span style={{flex: '1 1 5%'}}>Project</span>
             <span style={{flex: '2 1 10%'}}>Total</span>
-          </div>
-            {
+          </div>}
+
+            {this.state.selectedColumns.length > 0 &&
               Object.keys(this.props.projects).map((project, index) => {
-                let pj = projects[project]
+                let pj = this.props.projects[project]
               return (
                 <div
                   className={styles.tableData}
@@ -44,7 +78,7 @@ export default class Table extends Component {
                     <span>{pj['arbeitspaket']}</span>
                   </span>
                   <span style={{flex: '2 1 5%'}}>
-                    <span>{pj['total-cost'].toFixed(2)}</span>
+                    <span>{(pj['total-cost']||0).toFixed(2)}</span>
                   </span>
                 </div>)
             })}

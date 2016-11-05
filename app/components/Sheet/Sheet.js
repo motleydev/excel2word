@@ -32,6 +32,7 @@ export default class Sheet extends Component {
   }
 
   serialCheck (e) {
+    e.preventDefault()
     this.updateSheet({serialized: e.target.checked})
   }
 
@@ -69,35 +70,59 @@ export default class Sheet extends Component {
   }
 
   render() {
-
     let {configOpen, selected, serialized, name} = this.props.sheet
 
+    let baseStyles = [styles.sheet, selected ? styles.selected : ''].join(' ')
+
     return (
-      <div className={styles.sheet} onClick={this.selectSheet}>
+      <div className={baseStyles} onClick={this.selectSheet}>
         {!configOpen &&
-          <div>
+          <div className={styles.frontPane}>
             <textarea type="text" value={name} onChange={this.changeName} />
 
             {selected &&
-              <div>
-                <div onClick={this.deselectSheet}><IoAndroidDone /></div>
-                <div onClick={this.openConfig}><IoGearA /></div>
+              <div className={styles.frontPaneButtons}>
+                <div>
+                  <span onClick={this.openConfig}>
+                    <IoGearA size="1.5rem" fill="white"/>
+                  </span>
+                </div>
+                <div>
+                  <span onClick={this.deselectSheet}>
+                    <IoAndroidClose size="1.5rem" fill="white" />
+                  </span>
+                </div>
               </div>}
 
           </div>}
 
-        {configOpen && <div>
-          <label htmlFor="serialized">
-          <span>Serialized?</span>
-          <span>{ serialized
-            ? <IoAndroidCheckboxOutline />
-            : <IoAndroidCheckboxOutlineBlank />}</span>
-            <input id="serialized" type="checkbox" checked={serialized} onChange={this.serialCheck} />
-          </label>
+        {configOpen &&
+
+          <div className={styles.configPane}>
+
+          <div>
+            <label htmlFor={`serialized${this.props.index}`}>
+              <span>Serialized?</span>
+              <span>{ serialized
+                ? <IoAndroidCheckboxOutline size="1.5rem" fill="white"/>
+                : <IoAndroidCheckboxOutlineBlank size="1.5rem" fill="white"/>}</span>
+              <input id={`serialized${this.props.index}`}
+                type="checkbox"
+                checked={serialized}
+                onChange={this.serialCheck}
+              />
+            </label>
+          </div>
+
           <div>
             <Button onClick={this.addSchema}>+ Add Schema</Button>
           </div>
-          <div onClick={this.openConfig}><IoAndroidClose /></div>
+
+          <div>
+            <span onClick={this.openConfig}>
+              <IoAndroidDone size="1.5rem" fill="white"/>
+            </span>
+          </div>
         </div>}
 
       </div>

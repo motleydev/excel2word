@@ -3,11 +3,10 @@
 	flex: 0 0 100%;
 	display:flex;
 	flex-wrap: wrap;
-
 }
 
 
-.projectList > div > div {
+.tableData > div {
 	flex: 0 0 100%;
 	display:flex;
   min-height: 25px;
@@ -43,7 +42,7 @@
   margin-top: 23px;
 }
 
-.projectList > div > div > span {
+.tableData > span {
 	margin:0;
 	padding:0;
 	text-align: left;
@@ -57,6 +56,28 @@
   align-items: center;
 }
 
-.projectList > div > div {
-  overflow:hidden;
+.table > div {
+  // overflow:hidden;
+}
+
+
+.labels {
+  flex: 0 0 100%;
+  display: flex;
+  font-size: 10px;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: flex-start;
+}
+
+.labels > div {
+  height: 24px;
+  margin-right:10px;
+  margin-bottom: 10px;
+  border-bottom: 2px solid rgba(0,0,0,0.75)
+}
+
+.labels > div:hover {
+  cursor: pointer;
+  border-color: #E80C19;
 }

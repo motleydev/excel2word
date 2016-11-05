@@ -1,5 +1,5 @@
 .sheet {
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   background: #313131;
   margin-bottom: 32px;
@@ -10,10 +10,15 @@
   display: flex;
   flex-wrap: wrap;
   cursor: pointer;
+  transition: box-shadow 0.125s ease-out;
+  box-shadow: 0px 0px 0px 0px rgba(0,0,0,0.75);
 }
 
 .sheet.selected {
-  background: #E80C19;
+  // background: #E80C19;
+  background: #0a0a0a;
+  box-shadow: 0px 1px 35px -5px rgba(0,0,0,0.75);
+  cursor: inherit;
 }
 
 .sheet textarea,
@@ -35,6 +40,7 @@
   height: 48px;
   -webkit-app-region: no-drag;
   outline: none;
+  align-self: flex-start;
 }
 
 .sheet input[type=checkbox] {
@@ -44,4 +50,48 @@
 
 .sheet textarea:focus {
   border-bottom: 3px solid white;
+}
+
+.configPane {
+  display: flex;
+  flex: 0 0 100%;
+  align-items: stretch;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align:center;
+  color: white;
+}
+
+.configPane > div {
+  flex: 0 0 100%;
+}
+
+.frontPane {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 0 0 100%;
+  align-items: stretch;
+}
+
+.frontPaneButtons {
+  flex: 0 0 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align:center;
+  opacity: 0;
+  transition: opacity 0.125s ease-out;
+}
+
+.frontPaneButtons > div {
+  flex: 0 0 100%;
+}
+
+.frontPane > div span,
+.configPane > div span {
+  cursor: pointer;
+}
+
+.sheet.selected:hover .frontPaneButtons {
+  opacity: 1;
 }
