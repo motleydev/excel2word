@@ -1,20 +1,20 @@
 // @flow
-import React, { Component } from 'react';
-import styles from './Sheet.css'
-
-import fs from 'fs'
-const {dialog} = require('electron').remote
-
+import React, { Component } from 'react'
+// Libs
+import fs from 'fs';
+// Utils
+const {dialog} = require('electron').remote;
+// Components
 import {IoGearA,
   IoAndroidDone,
   IoAndroidCheckboxOutlineBlank,
   IoAndroidCheckboxOutline,
-  IoAndroidClose} from 'react-icons/io'
-
+  IoAndroidClose} from 'react-icons/io';
 import Button from '../../ui/Button/Button'
+// Style
+import styles from './Sheet.css'
 
 export default class Sheet extends Component {
-
   constructor(props) {
     super(props)
 
@@ -27,52 +27,51 @@ export default class Sheet extends Component {
     this.updateSheet = this.updateSheet.bind(this)
   }
 
-  changeName (e) {
-    this.updateSheet({name: e.target.value})
+  changeName(e) {
+    this.updateSheet({ name: e.target.value })
   }
 
-  serialCheck (e) {
+  serialCheck(e) {
     e.preventDefault()
-    this.updateSheet({serialized: e.target.checked})
+    this.updateSheet({ serialized: e.target.checked })
   }
 
-  selectSheet () {
+  selectSheet() {
     if (this.props.sheet.selected === false ) {
-      this.updateSheet({selected: true})
+      this.updateSheet({ selected: true })
     }
   }
 
-  deselectSheet () {
+  deselectSheet() {
     if (this.props.sheet.selected === true ) {
-      this.updateSheet({selected: false})
+      this.updateSheet({ selected: false })
     }
   }
 
-  openConfig () {
-    this.updateSheet({configOpen: !this.props.sheet.configOpen})
+  openConfig() {
+    this.updateSheet({ configOpen: !this.props.sheet.configOpen })
   }
 
-  addSchema () {
-
+  addSchema() {
     dialog.showOpenDialog((fileName) => {
 
-    var content = fs
-      .readFileSync(fileName[0], "binary");
-      this.updateSheet({schema: content})
+      const content = fs.readFileSync(fileName[0], 'utf8');
+
+      const json = JSON.parse(content);
+
+      this.updateSheet({ schema: json })
 
     })
-
   }
 
-  updateSheet (obj) {
-    let payload = {...this.props.sheet, ...obj}
+  updateSheet(obj) {
+    const payload = { ...this.props.sheet, ...obj }
     this.props.updateSheet(this.props.index, payload)
   }
 
   render() {
-    let {configOpen, selected, serialized, name} = this.props.sheet
-
-    let baseStyles = [styles.sheet, selected ? styles.selected : ''].join(' ')
+    const { configOpen, selected, serialized, name } = this.props.sheet
+    const baseStyles = [styles.sheet, selected ? styles.selected : ''].join(' ')
 
     return (
       <div className={baseStyles} onClick={this.selectSheet}>
@@ -84,7 +83,7 @@ export default class Sheet extends Component {
               <div className={styles.frontPaneButtons}>
                 <div>
                   <span onClick={this.openConfig}>
-                    <IoGearA size="1.5rem" fill="white"/>
+                    <IoGearA size="1.5rem" fill="white" />
                   </span>
                 </div>
                 <div>
@@ -97,33 +96,33 @@ export default class Sheet extends Component {
           </div>}
 
         {configOpen &&
-
           <div className={styles.configPane}>
 
-          <div>
-            <label htmlFor={`serialized${this.props.index}`}>
-              <span>Serialized?</span>
-              <span>{ serialized
-                ? <IoAndroidCheckboxOutline size="1.5rem" fill="white"/>
-                : <IoAndroidCheckboxOutlineBlank size="1.5rem" fill="white"/>}</span>
-              <input id={`serialized${this.props.index}`}
-                type="checkbox"
-                checked={serialized}
-                onChange={this.serialCheck}
-              />
-            </label>
-          </div>
+            <div>
+              <label htmlFor={`serialized${this.props.index}`}>
+                <span>Serialized?</span>
+                <span>{ serialized
+                  ? <IoAndroidCheckboxOutline size="1.5rem" fill="white" />
+                  : <IoAndroidCheckboxOutlineBlank size="1.5rem" fill="white" />}</span>
+                <input
+                  id={`serialized${this.props.index}`}
+                  type="checkbox"
+                  checked={serialized}
+                  onChange={this.serialCheck}
+                />
+              </label>
+            </div>
 
-          <div>
-            <Button onClick={this.addSchema}>+ Add Schema</Button>
-          </div>
+            <div>
+              <Button onClick={this.addSchema}>+ Add Schema</Button>
+            </div>
 
-          <div>
-            <span onClick={this.openConfig}>
-              <IoAndroidDone size="1.5rem" fill="white"/>
-            </span>
-          </div>
-        </div>}
+            <div>
+              <span onClick={this.openConfig}>
+                <IoAndroidDone size="1.5rem" fill="white" />
+              </span>
+            </div>
+          </div>}
 
       </div>
     )

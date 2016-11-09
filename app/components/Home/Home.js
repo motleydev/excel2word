@@ -1,31 +1,26 @@
-// @flow
+/**
+ *
+ * Home.js
+ * The main entrypoint for the app
+ *
+ */
+
 import React, { Component } from 'react';
-import { Link } from 'react-router';
-import styles from './Home.css'
-
+// Libs
 import officegen from 'officegen'
-
+const expressions = require('angular-expressions');
+const Docxtemplater = require('docxtemplater');
+import fs from 'fs';
+// Utils
+import getData from '../../utils/getData'
+import getSheets from '../../utils/getSheets'
+const {dialog} = require('electron').remote
+// Style
+import styles from './Home.css'
+// Components
 import Button from '../../ui/Button/Button'
 import Table from '../Table/Table'
 import Sheet from '../Sheet/Sheet'
-
-import getData from '../../utils/getData'
-import getSheets from '../../utils/getSheets'
-
-var expressions = require('angular-expressions');
-
-var angularParser = function(tag) {
-    return {
-        get: tag == '.' ? function(s){ return s;} : expressions.compile(tag)
-    };
-}
-
-var Docxtemplater = require('docxtemplater');
-
-const {dialog} = require('electron').remote
-
-import fs from 'fs';
-
 
 export default class Home extends Component {
 
@@ -35,7 +30,8 @@ export default class Home extends Component {
     this.state = {
       projects: {},
       company: {},
-      activeTable: 0
+      activeTable: 0,
+      parsedSheets: []
     }
 
     this.loadFile = this.loadFile.bind(this);
@@ -43,6 +39,8 @@ export default class Home extends Component {
     this.pickTemplate = this.pickTemplate.bind(this);
     this.updateSheet = this.updateSheet.bind(this);
     this.processSheets = this.processSheets.bind(this);
+    this.toggleLabel = this.toggleLabel.bind(this);
+    this.cancelProject = this.cancelProject.bind(this);
   }
 
   componentDidMount() {
@@ -55,27 +53,19 @@ export default class Home extends Component {
     dialog.showOpenDialog((fileName) => {
 
       // const projects = getData(fileName[0], 1)
+      let sheets = []
+      sheets = getSheets(fileName[0])
 
-      const sheets = getSheets(fileName[0])
-
-      // Remove items without names
-      // for (let project in projects) {
-      //   if (!projects[project].name) {
-      //     delete projects[project]
-      //   }
-      // }
-
-      // const company = getData(fileName[0], 3)
-
-      // this.setState({projects: projects, company: company})
-      this.setState({sheets: sheets, file: fileName[0]})
+      this.setState({
+        sheets: sheets,
+        file: fileName[0],
+        parsedSheets: [],
+        company: {},
+        projects: {}
+      })
 
     })
   }
-
-  // pickSheet(index) {
-
-  // }
 
   pickTemplate() {
     // Open Book
@@ -83,7 +73,7 @@ export default class Home extends Component {
     dialog.showOpenDialog((fileName) => {
 
     var content = fs
-      .readFileSync(fileName[0], "binary");
+      .readFileSync(fileName[0], 'binary');
 
       this.setState({template: content})
 
@@ -101,68 +91,96 @@ export default class Home extends Component {
 
   saveFile() {
 
-    // let schema = {
-    //         sbb: {
-    //           t:'strategie-senior-beratung-t',
-    //           chf: 'strategie-senior-beratung-chf'
-    //         },
+    let angularParser = (tag) => {
+    return {
+        get: tag == '.' ? function(s){ return s;} : expressions.compile(tag)
+    };
+}
 
-    //         bsd: {
-    //           t: 'beratung-senior-design-text-t',
-    //           chf: 'beratung-senior-design-chf'
-    //         },
+    let schemaMap = (dest, source) => {
 
-    //         pd: {
-    //           t: 'projektmanagement-design-t',
-    //           chf: 'projektmanagement-design-chf'
-    //         },
+      Object.keys(dest).map((key)=> {
 
-    //         drit: {
-    //           chf: 'rngsumme-externe-inkl-mwst-chf'
-    //         },
+        if (typeof dest[key] === 'object') {
+          schemaMap(dest[key], source)
+        } else {
+          dest[key] = source[dest[key]]
+        }
+      })
+      return dest
 
-    //         project: {
-    //           number: 'arbeitspaket',
-    //           name: 'name'
-    //         }
+    }
 
-    //       }
+    let clone = (obj) => {
+      if(obj == null || typeof(obj) != 'object')
+          return obj;
 
+      var temp = obj.constructor();
 
-  //    if (schema) {
+      for(var key in obj)
+          temp[key] = clone(obj[key]);
+      return temp;
+    }
 
+    let sheets = this.state.parsedSheets.filter((sheet) => {
+      return !!sheet.data.entries
+    })
 
-  //   function schemaMap(dest, source) {
+    let totalEntries = {}
 
-  //     Object.keys(dest).map((key)=> {
+    sheets.forEach((sheet) => {
 
-  //       if (typeof dest[key] === 'object') {
-  //         schemaMap(dest[key], source)
-  //       } else {
-  //         dest[key] = source[dest[key]]
-  //       }
-  //     })
-  //     return dest
+      if (!sheet.serialized) {
 
-  //   }
+        let result = {}
+        let entries = sheet.data.entries
 
+        for (let entry in entries) {
 
+          let dataEntry = entries[entry]
 
-  //   // Loop each project
-  //   for (let dataEntry in dataSet) {
+          if (dataEntry.export) {
+            result[entry] = dataEntry.value
+          }
 
-  //     // Get a copy of the schema object
-  //     let schemaObj = clone(schema)
-  //     let project = dataSet[dataEntry]
-  //     let parsedObj = schemaMap(schemaObj, project)
+        }
 
-  //     dataSet[dataEntry] = parsedObj
+        totalEntries[sheet.name] = result
 
-  //   }
-
-  // }
+      } else {
 
 
+        let result = []
+        let entries = sheet.data.entries
+
+        for (let entry in entries) {
+
+          let dataEntry = entries[entry]
+
+          if (dataEntry.export) {
+
+
+              // Get a copy of the schema object
+
+              if (Object.keys(sheet.schema).length > 0) {
+
+                let schemaObj = clone(sheet.schema)
+                let parsedObj = schemaMap(schemaObj, dataEntry)
+                result.push(parsedObj)
+
+              } else {
+                result.push(dataEntry)
+              }
+
+          }
+
+        }
+
+        totalEntries[sheet.name] = result
+
+      }
+
+    })
 
     dialog.showSaveDialog((fileName) => {
 
@@ -170,119 +188,63 @@ export default class Home extends Component {
 
       doc.setOptions({parser: angularParser});
 
-      // Loop all sheets
-        // If schema present, process data array by schema
-        // If none serialized return first object onto master data object
-        // Add sheet by named key onto master data object
-      // set Data
+      console.log(totalEntries)
 
-      let sheets = {...this.state.parsedSheets}
-      let projects = {...this.state.projects}
-
-      let invoices = []
-
-      for (let entry in this.state.projects) {
-
-        let project = this.state.projects[entry]
-
-          let result = new Object({project: {}})
-
-          function dayHour (obj1, obj2) {
-
-            let a = obj1 ? obj1 : 0
-            let b = obj2 ? obj2 : 0
-            return {
-              t: a,
-              chf: b
-            }
-          }
-
-
-          result.ssb = dayHour(
-            project['strategie-senior-beratung-t'],
-            project['strategie-senior-beratung-chf'])
-          result.bsd = dayHour(
-            project['beratung-senior-design-text-t'],
-            project['beratung-senior-design-chf'])
-          result.pd = dayHour(
-            project['projektmanagement-design-t'],
-            project['projektmanagement-design-chf'])
-          result.drit = dayHour(0,
-            project['rngsumme-externe-inkl-mwst-chf'])
-          result.project.number = project.arbeitspaket
-          result.project.name = project.name
-          result.project.sum = [
-            result.ssb,
-            result.bsd,
-            result.pd,
-            result.drit].reduce((prev, curr) => {
-              return prev + (curr ? curr.chf : 0)
-            }, 0)
-
-        invoices.push(result)
-      }
-      let {company, name, department, address, zip, city, head, short} =
-        this.state.company['B']
-
-      doc.setData({
-        company: company,
-        name: name,
-        department: department,
-        address: address,
-        zip: zip,
-        city: city,
-        head: head,
-        short: short,
-        invoices: invoices
-      });
-
-
+      doc.setData(totalEntries)
       doc.render();
 
-      var buf = doc.getZip().generate({type:"nodebuffer"});
+      var buf = doc.getZip().generate({type:'nodebuffer'});
 
       fs.writeFileSync(fileName+'.docx', buf);
 
     })
+
   }
 
   processSheets () {
 
-
+    let _this = this
     // Set up blank Array
-    let selectedSheets = []
+    let selectedSheets =
+      this.state.sheets.filter( sheet => sheet.selected)
 
-    // Get only my selected sheets
-    this.state.sheets.map((sheet) => {
-      if (sheet.selected) {
-        selectedSheets.push(sheet)
-      }
-    })
+      selectedSheets.forEach((worksheet) => {
 
-    // Process those sheets async
-    let finalResult = selectedSheets.map((worksheet, index) => {
+        let opts = {
+          serialized: worksheet.serialized
+        }
 
-      let opts = {
-        serialized: worksheet.serialized
-      }
+        getData(this.state.file, worksheet.sheet, opts).then(
+          result => {
+            worksheet.data = result
+            this.setState({parsedSheets: [worksheet, ...this.state.parsedSheets]})
+          }
+        ).catch((err) => {
+          worksheet.data =  err
+          this.setState({parsedSheets: [worksheet, ...this.state.parsedSheets]})
+        })
 
-       getData(this.state.file, worksheet.sheet, opts).then(
-        result => worksheet.data = result
-        ).catch((err) => worksheet.data =  err)
-    })
+      })
 
-    this.setState({parsedSheets: finalResult})
   }
 
-  // cancelProject(project) {
-  //   let newProjectState = {...this.state.projects}
+  toggleLabel(index) {
 
-  //   newProjectState[project].export = !this.state.projects[project].export
-  //   this.setState({projects: newProjectState})
-  // }
+    let parsedSheets = [...this.state.parsedSheets]
 
-  componentDidUpdate() {
-    console.count("updated")
+    parsedSheets[this.state.activeTable].data.labels[index].chosen =
+    !this.state.parsedSheets[this.state.activeTable].data.labels[index].chosen
+
+    this.setState({parsedSheets: parsedSheets})
+
+  }
+
+  cancelProject(project) {
+    let newProjectState = {...this.state.parsedSheets[this.state.activeTable].data.entries}
+
+    newProjectState[project].export =
+      !this.state.parsedSheets[this.state.activeTable].data.entries[project].export
+    this.setState({projects: newProjectState})
   }
 
   render() {
@@ -292,34 +254,53 @@ export default class Home extends Component {
     return (
       <div className={styles.container}>
 
-        <div className={styles.controls}>
+        <div className={[styles.controls, styles.header].join(' ')}>
         <div>
 
-          <p>Step One</p>
-            <Button onClick={this.loadFile}>Import</Button>
-
-
-          <p>Step Two</p>
-            <Button onClick={this.pickTemplate}>Template</Button>
+            <p>Step One</p>
+            <Button onClick={this.loadFile}>Import Excel File</Button>
 
           </div>
         </div>
 
         <div className={styles.canvas}>
 
-        {this.state.parsedSheets &&
-          <div>
-          <div>
 
-          {this.state.parsedSheets.map( (sheet, index) => {
-            return <div key={index}>{sheet.name}</div>
-          } )}
-
-          </div>
-            <Table projects={this.state.parsedSheets[this.state.activeTable]} />
+        {!this.state.sheets &&
+          <div className={styles.wolf}>
+            <img src='../reference/wolf.png'/>
           </div>}
 
-        {(this.state.sheets && !this.state.parsedSheets) &&
+        {this.state.parsedSheets.length > 0 &&
+
+        <div>
+
+          <div className={styles.sheetNames}>
+          {this.state.parsedSheets.map( (sheet, index) => {
+
+            let style = [
+              styles.sheetName,
+              index === this.state.activeTable ? styles.selected : ''
+            ].join(' ')
+
+            return (
+              <div
+                key={index}
+                onClick={()=>this.setState({activeTable: index}) }
+                className={style}>
+                {sheet.name}
+              </div>)
+          } )}
+          </div>
+
+            <Table
+              projects={this.state.parsedSheets[this.state.activeTable]}
+              toggleLabel={this.toggleLabel}
+              cancelProject={this.cancelProject}
+            />
+          </div>}
+
+        {(this.state.sheets && this.state.parsedSheets.length < 1) &&
           <div className={styles.sheets}>
             {this.state.sheets.map((sheet, index) => {
               return <Sheet key={index} index={index} sheet={sheet}
@@ -331,8 +312,13 @@ export default class Home extends Component {
 
         </div>
 
-        <div className={styles.footer}>
-          <Button onClick={this.saveFile}>Export</Button>
+        <div className={[styles.controls, styles.footer].join(' ')}>
+        <div>
+          <p>Step Two</p>
+            <Button onClick={this.pickTemplate}>Pick a Template</Button>
+            <p>Step Three</p>
+          <Button onClick={this.saveFile}>Export Document</Button>
+          </div>
         </div>
 
       </div>

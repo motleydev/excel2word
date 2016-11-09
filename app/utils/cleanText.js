@@ -1,15 +1,18 @@
-function cleanText(value){
-  value = value.toLowerCase();
-  value = value.replace(/ä/g, 'ae');
-  value = value.replace(/ö/g, 'oe');
-  value = value.replace(/ü/g, 'ue');
-  value = value.replace(/ß/g, 'ss');
-  value = value.replace(/ /g, '-');
-  value = value.replace(/\./g, '');
-  value = value.replace(/,/g, '');
-  value = value.replace(/\(/g, '');
-  value = value.replace(/\)/g, '');
-  return value;
+const cleanText = (value) => {
+  let text = value
+
+  text = text.toLowerCase()
+  text = text.replace(/ä/g, 'ae')
+  text = text.replace(/ö/g, 'oe')
+  text = text.replace(/ü/g, 'ue')
+  text = text.replace(/ß/g, 'ss')
+  text = text.replace(/ /g, '_')
+  text = text.replace(/-/g, '_')
+  text = text.replace(/\./g, '')
+  text = text.replace(/,/g, '')
+  text = text.replace(/\(/g, '')
+  text = text.replace(/\)/g, '')
+  return text
 }
 
 export default cleanText

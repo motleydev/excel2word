@@ -3,16 +3,6 @@ import fs from 'fs';
 import cleanText from './cleanText';
 
 
-function clone(obj){
-   if(obj == null || typeof(obj) != 'object')
-      return obj;
-
-   var temp = obj.constructor();
-
-   for(var key in obj)
-       temp[key] = clone(obj[key]);
-   return temp;
-}
 
 const getData = (fileName, sheetIndex, opts) => {
 
@@ -42,8 +32,14 @@ const getData = (fileName, sheetIndex, opts) => {
 
   // Assign each column to an entry on project
   // give that an array value
+
+
   for (let col of columns) {
-    dataSet[col] = {export: true}
+    if (serialized) {
+      dataSet[col] = {export: true}
+    } else {
+      dataSet[col] = {}
+    }
   }
 
 
@@ -60,7 +56,7 @@ return new Promise((resolve, reject) => {
           cells[`A${numeric}`] == null ) {
 
         reject({
-          message: 'This message cannot be parsed',
+          message: 'This worksheet cannot be parsed',
           error: true
         })
 
@@ -78,46 +74,30 @@ return new Promise((resolve, reject) => {
   })
 
 
-  // if (schema) {
-
-
-  //   function schemaMap(dest, source) {
-
-  //     Object.keys(dest).map((key)=> {
-
-  //       if (typeof dest[key] === 'object') {
-  //         schemaMap(dest[key], source)
-  //       } else {
-  //         dest[key] = source[dest[key]]
-  //       }
-  //     })
-  //     return dest
-
-  //   }
-
-
-
-  //   // Loop each project
-  //   for (let dataEntry in dataSet) {
-
-  //     // Get a copy of the schema object
-  //     let schemaObj = clone(schema)
-  //     let project = dataSet[dataEntry]
-  //     let parsedObj = schemaMap(schemaObj, project)
-
-  //     dataSet[dataEntry] = parsedObj
-
-  //   }
-
-  // }
-
   let objKeys = Object.keys(dataSet)
+  let nonSerialData = new Object;
+
+  if (!serialized) {
+    for (let key in dataSet[objKeys[0]]) {
+      nonSerialData[key] = {
+        export: true,
+        value: dataSet[objKeys[0]][key]
+      }
+    }
+  }
 
   let result = serialized
     ? dataSet
-    : dataSet[objKeys[0]]
+    : nonSerialData
 
-  resolve({entries: result, labels: Array.from(columnLabels)});
+  let labels = Array.from(columnLabels).map((label, index) => {
+    return {
+      value: label,
+      chosen: serialized ? false : true
+    }
+  })
+
+  resolve({entries: result, labels: labels});
 
  })
 

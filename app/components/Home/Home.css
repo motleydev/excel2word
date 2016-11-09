@@ -10,7 +10,7 @@
 .controls {
   display: flex;
 	flex: 0 0 100%;
-  min-height:250px;
+  min-height:150px;
   align-items: center;
   align-content: center;
   justify-content: space-around;
@@ -44,8 +44,12 @@
 
 .canvas {
   flex: 0 0 100%;
-  min-height: 400px;
+  min-height: 300px;
   display: flex;
+}
+
+.canvas > div {
+  flex: 0 0 100%;
 }
 
 
@@ -62,6 +66,30 @@
   overflow: scroll;
 }
 
+.sheetNames {
+  display:flex;
+  padding-left: 20px;
+  padding-right: 20px;
+  flex-wrap: wrap;
+}
+
+.sheetNames > div {
+  border-bottom: 2px solid black;
+  padding: 5px 15px;
+  flex: 0 0 15%;
+  margin-bottom: 20px;
+}
+
+.sheetNames > div:first-child {
+  padding-left: 0;
+}
+
+.sheetNames > div:hover,
+.sheetNames > .selected {
+  border-color:#E80C19;
+  cursor: pointer;
+}
+
 .doneButton {
   flex: 0 0 100%;
   display:flex;
@@ -69,11 +97,18 @@
   justify-content: center;
 }
 
-.footer {
+.wolf {
   flex: 0 0 100%;
-  // align-self: flex-end;
   display:flex;
   align-items: center;
   justify-content: center;
-  min-height:180px;
+}
+
+.wolf img {
+  max-height: 250px;
+}
+
+.footer {
+  padding-bottom: 50px;
+  padding-top: 20px;
 }

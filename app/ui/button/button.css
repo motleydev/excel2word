@@ -4,7 +4,6 @@
 	padding:15px 10px;
 	border-radius: 4px;
 	color:white;
-	flex: 0 1 25%;
 	box-shadow: 0px 1px 25px -5px rgba(0,0,0,0.75);
   display:flex;
   align-items: center;

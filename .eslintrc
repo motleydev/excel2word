@@ -7,12 +7,13 @@
     "node": true
   },
   "rules": {
-    "arrow-parens": ["off"],
+    "arrow-parens": 1,
+    "semi": ["error","never"],
     "consistent-return": "off",
-    "comma-dangle": "off",
+    "comma-dangle": 1,
     "generator-star-spacing": "off",
     "import/no-unresolved": ["error", { "ignore": ["electron"] }],
-    "import/no-extraneous-dependencies": "off",
+    "import/no-extraneous-dependencies": 1,
     "no-use-before-define": "off",
     "promise/param-names": 2,
     "promise/always-return": 2,

@@ -1,6 +1,13 @@
 // @flow
 import React, { Component } from 'react';
 import styles from './Table.css'
+import {
+  IoAndroidCheckboxOutlineBlank,
+  IoAndroidCheckboxOutline,
+  IoGearA
+} from 'react-icons/io'
+
+import Button from '../../ui/Button/Button'
 
 var expressions = require('angular-expressions');
 
@@ -16,72 +23,141 @@ export default class Table extends Component {
     super(props)
 
     this.state = {
-      columns: [],
-      selectedColumns: []
-
+      columnEditorOpen: true
     }
   }
 
-  componentDidMount() {
-    // if (this.props.projects.data && this.props.projects.data.labels) {
-
-    //   let labels = this.props.projects.data.labels.map((label) => {
-    //     return {value: label, chose: false}
-    //   })
-
-    //   console.log(labels)
-
-    //   this.setState({columns: labels})
-
-    // }
-  }
-
   render() {
-    console.log(this.props)
-
     let {projects} = this.props
-    let {entries, labels} = projects.data
+    let {serialized} = projects
+    let {entries, labels, message, error} = projects.data
+    let editor = this.state.columnEditorOpen
+
+    let chosen = labels ? labels.filter((label) => label.chosen) : []
+    let width = `${((100 / (chosen.length + 1)) * 100)/100}%`
 
     return (
         <div className={styles.projectList}>
 
-        { labels &&
-          <div className={styles.labels}>
-            {labels.map((column, index) => {
-              return <div key={index}>{column}</div>
+        <div className={styles.table}>
+
+        { error &&
+          <div className={styles.error}>
+            <div><h2>{message}</h2></div>
+          </div>}
+
+          {(editor && !error) &&
+
+            <div className={styles.editor}>
+              { labels &&
+              <div className={styles.labels}>
+                {labels.map((label, index) => {
+
+                let style = [
+                styles.base,
+                label.chosen ? styles.chosen : ''
+                ].join(' ')
+
+                return (
+                  <div
+                    className={style}
+                    key={index}
+                    onClick={() => this.props.toggleLabel(index)}
+                  >{label.value}</div>)
+
+              })}
+          </div>}
+
+          <div className={styles.message}>
+            <p>Please choose some column headings above</p>
+          </div>
+          <div>
+            <Button onClick={() => {this.setState({columnEditorOpen: !editor})}}>Done</Button>
+          </div>
+
+          </div>}
+
+          {(chosen.length > 0 && serialized && !editor) &&
+            <div className={styles.tableHeader}>
+            <span style={{flex: `0 1 ${width}`, width: width}}>
+            <span>
+            <span><IoAndroidCheckboxOutline size="16px"/>&nbsp;&nbsp;Export ?</span>
+            </span>
+            </span>
+            {chosen.map((label, index) => {
+              return <span key={index} style={{flex: `2 2 ${width}`, width: width}}>
+                <span>{label.value}</span>
+              </span>
             })}
           </div>}
 
-
-        <div className={styles.table}>
-
-          {this.state.selectedColumns.length > 0 && <div className={styles.tableHeader}>
-            <span style={{flex: '1 1 5%'}}>Export</span>
-            <span style={{flex: '2 1 20%'}}>Name</span>
-            <span style={{flex: '1 1 5%'}}>Project</span>
-            <span style={{flex: '2 1 10%'}}>Total</span>
-          </div>}
-
-            {this.state.selectedColumns.length > 0 &&
-              Object.keys(this.props.projects).map((project, index) => {
-                let pj = this.props.projects[project]
+            {(chosen.length > 0 && serialized && !editor) &&
+              Object.keys(this.props.projects.data.entries).map((project, index) => {
+                let pj = this.props.projects.data.entries[project]
               return (
                 <div
                   className={styles.tableData}
                   key={index}
-                  onClick={(e) => {this.cancelProject(project, e)}}>
-                  <span style={{flex: '1 1 5%'}}>{pj.export && <span>!</span>}</span>
-                  <span style={{flex: '2 1 20%'}}>
-                    <span>{pj.name}</span>
+                  onClick={() => this.props.cancelProject(project)}>
+
+                  <span style={{flex: `0 1 ${width}`, width: width}}>
+                  {pj.export
+                    ? <span><IoAndroidCheckboxOutline size="16px"/>{pj.export}</span>
+                    : <span><IoAndroidCheckboxOutlineBlank size="16px"/>{pj.export}</span>
+                  }
                   </span>
-                  <span style={{flex: '1 1 5%'}}>
-                    <span>{pj['arbeitspaket']}</span>
-                  </span>
-                  <span style={{flex: '2 1 5%'}}>
-                    <span>{(pj['total-cost']||0).toFixed(2)}</span>
-                  </span>
+
+                   {chosen.map((label, index) => {
+                      return (
+                        <span key={index} style={{flex: `2 2 ${width}`, width: width}}>
+                          <span>{pj[label.value]}</span>
+                        </span>)
+                    })}
+
                 </div>)
             })}
+
+              {(chosen.length > 0 && !serialized && !editor) &&
+              chosen.map((label, index) => {
+
+              let pj = this.props.projects.data.entries[label.value]
+
+              return (
+                <div
+                  className={styles.tableData}
+                  key={index}
+                  onClick={() => this.props.cancelProject(label.value)}>
+
+                  <span style={{flex: `0 1 ${width}`, width: width}}>
+                  {pj.export
+                    ? <span><IoAndroidCheckboxOutline size="16px"/>{pj.export}</span>
+                    : <span><IoAndroidCheckboxOutlineBlank size="16px"/>{pj.export}</span>
+                  }
+                  </span>
+
+                  <span style={{flex: `0 1 50%`}}>
+                    <span>{label.value}</span>
+                    </span>
+                  <span style={{flex: `0 1 50%`}}>
+                    <span>{pj.value}</span>
+                  </span>
+
+                </div>)
+            })}
+              </div>
+              <div className={styles.tableFooter}>
+                <span className={[
+                  styles.columnEditorToggle,
+                  editor ? styles.active: ''].join(' ')}
+                  onClick={() => {this.setState({columnEditorOpen: !editor})}}
+                >
+                  <IoGearA size="16px"/> Column Editor
+                </span>
+                <span>
+                {this.props.projects.data.entries &&
+                  Object.keys(this.props.projects.data.entries).length}
+                &nbsp;Entries in this table.
+                </span>
               </div>
         </div>
     )
