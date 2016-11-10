@@ -1,18 +1,18 @@
-// @flow
-import React, { Component } from 'react'
+import React, { Component, PropTypes } from 'react'
 // Libs
-import fs from 'fs';
-// Utils
-const {dialog} = require('electron').remote;
+import fs from 'fs'
 // Components
-import {IoGearA,
+import { IoGearA,
   IoAndroidDone,
   IoAndroidCheckboxOutlineBlank,
   IoAndroidCheckboxOutline,
-  IoAndroidClose} from 'react-icons/io';
-import Button from '../../ui/Button/Button'
+  IoAndroidClose } from 'react-icons/io'
 // Style
 import styles from './Sheet.css'
+// Utils
+import Button from '../../ui/Button/Button'
+
+const { dialog } = require('electron').remote
 
 export default class Sheet extends Component {
   constructor(props) {
@@ -37,13 +37,13 @@ export default class Sheet extends Component {
   }
 
   selectSheet() {
-    if (this.props.sheet.selected === false ) {
+    if (this.props.sheet.selected === false) {
       this.updateSheet({ selected: true })
     }
   }
 
   deselectSheet() {
-    if (this.props.sheet.selected === true ) {
+    if (this.props.sheet.selected === true) {
       this.updateSheet({ selected: false })
     }
   }
@@ -54,13 +54,11 @@ export default class Sheet extends Component {
 
   addSchema() {
     dialog.showOpenDialog((fileName) => {
+      const content = fs.readFileSync(fileName[0], 'utf8')
 
-      const content = fs.readFileSync(fileName[0], 'utf8');
-
-      const json = JSON.parse(content);
+      const json = JSON.parse(content)
 
       this.updateSheet({ schema: json })
-
     })
   }
 
@@ -127,4 +125,15 @@ export default class Sheet extends Component {
       </div>
     )
   }
+}
+
+Sheet.propTypes = {
+  sheet: PropTypes.shape({
+    selected: PropTypes.bool,
+    configOpen: PropTypes.bool,
+    serialized: PropTypes.bool,
+    name: PropTypes.string,
+  }),
+  index: PropTypes.number,
+  updateSheet: PropTypes.func,
 }

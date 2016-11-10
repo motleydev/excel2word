@@ -1,15 +1,12 @@
-var xlsx = require('xlsx')
-import fs from 'fs'
 import cleanText from './cleanText'
 
-
+const xlsx = require('xlsx')
 
 const getSheets = (fileName) => {
+  const workbook = xlsx.readFile(fileName)
+  const sheets = workbook.SheetNames
 
-  let workbook = xlsx.readFile(fileName);
-  let sheets = workbook.SheetNames;
-
-  let parsedSheets = sheets.map((sheet, index) => {
+  const parsedSheets = sheets.map((sheet, index) => {
     return {
       name: cleanText(sheet),
       sheet: index,
@@ -18,12 +15,11 @@ const getSheets = (fileName) => {
       orientation: 'vertical',
       selected: false,
       configOpen: false,
-      data: {}
+      data: {},
     }
   })
 
-  return parsedSheets;
+  return parsedSheets
 }
-
 
 export default getSheets
