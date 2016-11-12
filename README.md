@@ -74,6 +74,11 @@ Here's an example of my word template:
 
 Notice that my closing `{/invoices}` tag is actually on the next page after a page-break, that enforces that each invoice gets its own page.
 
+## Movie Time!
+What's a modern day doc without a gif?
+
+![Screenshot](./reference/images/appflow.gif)
+
 ## That's it for now!
 Thank you for checking out Excel2Word - it's my first app and I am really excited about the electron platform. If you have any questions, please feel free to reach out. [Now go download it!](https://github.com/motleydev/excel2word/releases/download/v0.10.0-beta/Excel2Word.zip)
 
