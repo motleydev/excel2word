@@ -2,6 +2,8 @@ import cleanText from './cleanText'
 
 const xlsx = require('xlsx')
 
+const cDate = new Date().toISOString().substring(0, 10).toString()
+
 const getData = (fileName, sheetIndex, opts) => {
   const { serialized } = opts
 
@@ -26,14 +28,13 @@ const getData = (fileName, sheetIndex, opts) => {
 
   // Assign each column to an entry on project
   // give that an array value
-
-  for (let col of columns) {
+  columns.forEach((col) => {
     if (serialized) {
       dataSet[col] = { export: true }
     } else {
       dataSet[col] = {}
     }
-  }
+  })
 
   return new Promise((resolve, reject) => {
     // Loop all the cells
@@ -53,7 +54,7 @@ const getData = (fileName, sheetIndex, opts) => {
           columnLabels.add(cleanText(cells[`A${numeric}`].w))
 
           const newKey = cleanText(cells[`A${numeric}`].w)
-          dataSet[alpha][newKey] = (cells[key].v)
+          dataSet[alpha][newKey] = (cells[key].w)
         }
       }
     })
@@ -62,26 +63,26 @@ const getData = (fileName, sheetIndex, opts) => {
     const nonSerialData = {}
 
     if (!serialized) {
-      for (let key in dataSet[objKeys[0]]) {
+      Object.keys(dataSet[objKeys[0]]).forEach((key) => {
         nonSerialData[key] = {
           export: true,
           value: dataSet[objKeys[0]][key],
         }
-      }
+      })
     }
 
-    const result = serialized
+    const entries = serialized
       ? dataSet
       : nonSerialData
 
-    const labels = Array.from(columnLabels).map((label) => {
-      return {
+    const labels = Array.from(columnLabels).map(label => (
+      {
         value: label,
-        chosen: serialized ? false : true,
+        chosen: !serialized, //? false : true,
       }
-    })
+    ))
 
-    resolve({ result, labels })
+    resolve({ entries, labels, cDate })
   })
 }
 

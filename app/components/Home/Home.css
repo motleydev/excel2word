@@ -17,7 +17,7 @@
   flex-wrap: wrap;
 }
 
-.controls > div > div {
+.controls > div > button {
   margin: 12px auto 18px;
 }
 
@@ -73,18 +73,20 @@
   flex-wrap: wrap;
 }
 
-.sheetNames > div {
+.sheetNames > a {
   border-bottom: 2px solid black;
   padding: 5px 15px;
   flex: 0 0 15%;
   margin-bottom: 20px;
+  text-decoration: none;
+  color: inherit;
 }
 
-.sheetNames > div:first-child {
+.sheetNames > a:first-child {
   padding-left: 0;
 }
 
-.sheetNames > div:hover,
+.sheetNames > a:hover,
 .sheetNames > .selected {
   border-color:#E80C19;
   cursor: pointer;

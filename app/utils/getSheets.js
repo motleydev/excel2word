@@ -6,8 +6,8 @@ const getSheets = (fileName) => {
   const workbook = xlsx.readFile(fileName)
   const sheets = workbook.SheetNames
 
-  const parsedSheets = sheets.map((sheet, index) => {
-    return {
+  const parsedSheets = sheets.map((sheet, index) => (
+    {
       name: cleanText(sheet),
       sheet: index,
       serialized: true,
@@ -17,8 +17,7 @@ const getSheets = (fileName) => {
       configOpen: false,
       data: {},
     }
-  })
-
+  ))
   return parsedSheets
 }
 

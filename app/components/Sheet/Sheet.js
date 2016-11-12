@@ -72,6 +72,7 @@ export default class Sheet extends Component {
     const baseStyles = [styles.sheet, selected ? styles.selected : ''].join(' ')
 
     return (
+      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
       <div className={baseStyles} onClick={this.selectSheet}>
         {!configOpen &&
           <div className={styles.frontPane}>
@@ -80,14 +81,14 @@ export default class Sheet extends Component {
             {selected &&
               <div className={styles.frontPaneButtons}>
                 <div>
-                  <span onClick={this.openConfig}>
+                  <button onClick={this.openConfig} className={styles.icon}>
                     <IoGearA size="1.5rem" fill="white" />
-                  </span>
+                  </button>
                 </div>
                 <div>
-                  <span onClick={this.deselectSheet}>
+                  <button onClick={this.deselectSheet} className={styles.icon}>
                     <IoAndroidClose size="1.5rem" fill="white" />
-                  </span>
+                  </button>
                 </div>
               </div>}
 
@@ -116,9 +117,9 @@ export default class Sheet extends Component {
             </div>
 
             <div>
-              <span onClick={this.openConfig}>
+              <button onClick={this.openConfig} className={styles.icon}>
                 <IoAndroidDone size="1.5rem" fill="white" />
-              </span>
+              </button>
             </div>
           </div>}
 

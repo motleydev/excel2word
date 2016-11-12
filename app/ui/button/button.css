@@ -9,6 +9,12 @@
   align-items: center;
   justify-content: center;
   transition: box-shadow 0.125s ease-out;
+  outline: none;
+  border: none;
+  drop-shadow: none;
+  font-family: inherit;
+  font-style: inherit;
+  letter-spacing: inherit;
 }
 
 .button:hover {
@@ -23,4 +29,10 @@
   font-size:14px;
   letter-spacing: 1px;
   line-height: 14px;
+}
+
+.button:disabled {
+  background: rgba(0,0,0,0.25);
+  box-shadow: none;
+  cursor: inherit;
 }

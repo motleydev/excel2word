@@ -1,21 +1,6 @@
 {
-  "sbb": {
-    "t":"strategie_senior_beratung_t",
-    "chf": "strategie_senior_beratung_chf"
-  },
-  "bsd": {
-    "t": "beratung_senior_design_text_t",
-    "chf": "beratung_senior_design_chf"
-  },
-  "pd": {
-    "t": "projektmanagement_design_t",
-    "chf": "projektmanagement_design_chf"
-  },
-  "drit": {
-    "chf": "rngsumme_externe_inkl_mwst_chf"
-  },
-  "project": {
-    "number": "arbeitspaket",
-    "name": "name"
+  "creative": {
+    "count": "creative_count",
+    "cost": "creative_cost"
   }
 }

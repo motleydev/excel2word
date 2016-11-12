@@ -45,11 +45,6 @@ export default class Home extends Component {
     this.cancelProject = this.cancelProject.bind(this)
   }
 
-  componentDidMount() {
-    const today = new Date()
-    this.setState({ date: today })
-  }
-
   loadFile() {
     // Open Book
     dialog.showOpenDialog((fileName) => {
@@ -85,21 +80,20 @@ export default class Home extends Component {
   }
 
   saveFile() {
-    const angularParser = (tag) => {
-      return {
-        get: tag === '.' ? s => s : expressions.compile(tag),
-      }
-    }
+    const angularParser = tag => (
+      { get: tag === '.' ? s => s : expressions.compile(tag) }
+    )
 
     const schemaMap = (dest, source) => {
-      Object.keys(dest).map((key) => {
-        if (typeof dest[key] === 'object') {
-          schemaMap(dest[key], source)
+      const newDest = dest
+      Object.keys(newDest).forEach((key) => {
+        if (typeof newDest[key] === 'object') {
+          schemaMap(newDest[key], source)
         } else {
-          dest[key] = source[dest[key]]
+          newDest[key] = source[dest[key]]
         }
       })
-      return dest
+      return newDest
     }
 
     const clone = (obj) => {
@@ -109,37 +103,35 @@ export default class Home extends Component {
 
       const temp = obj.constructor()
 
-      for (let key in obj) {
+      Object.keys(obj).forEach((key) => {
         temp[key] = clone(obj[key])
         return temp
-      }
+      })
     }
 
-    const sheets = this.state.parsedSheets.filter((sheet) => {
-      return !!sheet.data.entries
-    })
+    const sheets = this.state.parsedSheets.filter(
+      sheet => !!sheet.data.entries
+    )
 
     const totalEntries = {}
 
     sheets.forEach((sheet) => {
       if (!sheet.serialized) {
-        const result = {}
+        const result = { cDate: sheet.data.cDate }
         const entries = sheet.data.entries
 
-        for (let entry in entries) {
+        Object.keys(entries).forEach((entry) => {
           const dataEntry = entries[entry]
-
           if (dataEntry.export) {
             result[entry] = dataEntry.value
           }
-        }
-
+        })
         totalEntries[sheet.name] = result
       } else {
         const result = []
         const entries = sheet.data.entries
 
-        for (let entry in entries) {
+        Object.keys(entries).forEach((entry) => {
           const dataEntry = entries[entry]
 
           if (dataEntry.export) {
@@ -147,13 +139,13 @@ export default class Home extends Component {
             if (Object.keys(sheet.schema).length > 0) {
               const schemaObj = clone(sheet.schema)
               const parsedObj = schemaMap(schemaObj, dataEntry)
+              parsedObj.cDate = sheet.data.cDate
               result.push(parsedObj)
             } else {
               result.push(dataEntry)
             }
           }
-        }
-
+        })
         totalEntries[sheet.name] = result
       }
     })
@@ -177,21 +169,24 @@ export default class Home extends Component {
       this.state.sheets.filter(sheet => sheet.selected)
 
     selectedSheets.forEach((worksheet) => {
+      const newWorksheet = worksheet
       const opts = {
         serialized: worksheet.serialized,
       }
 
       getData(this.state.file, worksheet.sheet, opts).then(
         (result) => {
-          worksheet.data = result
+          newWorksheet.data = result
           this.setState({ parsedSheets: [
-            worksheet,
+            newWorksheet,
             ...this.state.parsedSheets,
           ] })
+          return null
         }
       ).catch((err) => {
-        worksheet.data = err
-        this.setState({ parsedSheets: [worksheet,
+        newWorksheet.data = err
+        this.setState({ parsedSheets: [
+          newWorksheet,
           ...this.state.parsedSheets,
         ] })
       })
@@ -244,13 +239,17 @@ export default class Home extends Component {
                 ].join(' ')
 
                 return (
-                  <div
+                  <a
+                    href=""
                     key={index}
-                    onClick={() => this.setState({ activeTable: index })}
+                    onClick={(e) => {
+                      e.preventDefault()
+                      this.setState({ activeTable: index })
+                    }}
                     className={style}
                   >
                     {sheet.name}
-                  </div>)
+                  </a>)
               })}
             </div>
 
@@ -263,15 +262,14 @@ export default class Home extends Component {
 
           {(this.state.sheets && this.state.parsedSheets.length < 1) &&
             <div className={styles.sheets}>
-              {this.state.sheets.map((sheet, index) => {
-                return (
-                  <Sheet
-                    key={index}
-                    index={index}
-                    sheet={sheet}
-                    updateSheet={this.updateSheet}
-                  />)
-              })}
+              {this.state.sheets.map((sheet, index) => (
+                <Sheet
+                  key={index}
+                  index={index}
+                  sheet={sheet}
+                  updateSheet={this.updateSheet}
+                />)
+              )}
               <div className={styles.doneButton}>
                 <Button onClick={this.processSheets}>Done!</Button>
               </div>
@@ -282,9 +280,17 @@ export default class Home extends Component {
         <div className={[styles.controls, styles.footer].join(' ')}>
           <div>
             <p>Step Two</p>
-            <Button onClick={this.pickTemplate}>Pick a Template</Button>
+            <Button
+              disabled={!(this.state.parsedSheets.length > 0)}
+              onClick={this.pickTemplate}
+            >Pick a Template
+            </Button>
             <p>Step Three</p>
-            <Button onClick={this.saveFile}>Export Document</Button>
+            <Button
+              disabled={!this.state.template}
+              onClick={this.saveFile}
+            >Export Document
+            </Button>
           </div>
         </div>
       </div>

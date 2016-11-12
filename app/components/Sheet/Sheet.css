@@ -95,3 +95,13 @@
 .sheet.selected:hover .frontPaneButtons {
   opacity: 1;
 }
+
+.sheet button {
+  border:none;
+  outline:none;
+}
+
+.sheet .icon {
+  background: none;
+  cursor: pointer;
+}

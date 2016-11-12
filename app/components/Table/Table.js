@@ -1,3 +1,4 @@
+/* eslint jsx-a11y/no-static-element-interactions: "off" */
 import React, { Component, PropTypes } from 'react'
 // Components
 import {
@@ -23,11 +24,10 @@ export default class Table extends Component {
     const { projects } = this.props
     const { serialized } = projects
     const { labels, message, error } = projects.data
+    const anyLabels = labels.filter(label => label.chosen).length > 0
     const editor = this.state.columnEditorOpen
-
     const chosen = labels ? labels.filter(label => label.chosen) : []
     const width = `${((100 / (chosen.length + 1)) * 100) / 100}%`
-
     return (
       <div className={styles.projectList}>
 
@@ -54,7 +54,8 @@ export default class Table extends Component {
                     className={style}
                     key={index}
                     onClick={() => this.props.toggleLabel(index)}
-                  >{label.value}</div>)
+                  >{label.value}</div>
+                  )
               })}
             </div> }
 
@@ -62,7 +63,12 @@ export default class Table extends Component {
               <p>Please choose some column headings above</p>
             </div>
             <div>
-              <Button onClick={() => { this.setState({ columnEditorOpen: !editor }) }}>Done</Button>
+              <Button
+                disabled={!anyLabels}
+                onClick={() => {
+                  this.setState({ columnEditorOpen: !editor })
+                }}
+              >Done</Button>
             </div>
 
           </div> }
@@ -77,12 +83,11 @@ export default class Table extends Component {
                 </span>
               </span>
             </span>
-            {chosen.map((label, index) => {
-              return (
-                <span key={index} style={{ flex: `2 2 ${width}`, width }}>
-                  <span>{label.value}</span>
-                </span>)
-            })}
+            {chosen.map((label, index) => (
+              <span key={index} style={{ flex: `2 2 ${width}`, width }}>
+                <span>{label.value}</span>
+              </span>
+            ))}
           </div>}
 
           {(chosen.length > 0 && serialized && !editor) &&
@@ -103,12 +108,11 @@ export default class Table extends Component {
                     }
                   </span>
 
-                  {chosen.map((label, childIndex) => {
-                    return (
-                      <span key={childIndex} style={{ flex: `2 2 ${width}`, width }}>
-                        <span>{pj[label.value]}</span>
-                      </span>)
-                  })}
+                  {chosen.map((label, childIndex) => (
+                    <span key={childIndex} style={{ flex: `2 2 ${width}`, width }}>
+                      <span>{pj[label.value]}</span>
+                    </span>
+                  ))}
 
                 </div>)
             })
@@ -166,7 +170,7 @@ export default class Table extends Component {
 Table.propTypes = {
   projects: PropTypes.shape({
     data: PropTypes.shape({
-      entries: PropTypes.array,
+      entries: PropTypes.object,
     }),
   }),
   cancelProject: PropTypes.func,

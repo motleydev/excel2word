@@ -67,11 +67,13 @@ app.on('ready', async () => {
     });
   }
 
+  const appName = 'Excel2Word'
+
   if (process.platform === 'darwin') {
     template = [{
-      label: 'Electron',
+      label: appName,
       submenu: [{
-        label: 'About ElectronReact',
+        label: `About ${appName}`,
         selector: 'orderFrontStandardAboutPanel:'
       }, {
         type: 'separator'
@@ -81,7 +83,7 @@ app.on('ready', async () => {
       }, {
         type: 'separator'
       }, {
-        label: 'Hide ElectronReact',
+        label: `Hide ${appName}`,
         accelerator: 'Command+H',
         selector: 'hide:'
       }, {
