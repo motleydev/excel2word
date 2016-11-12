@@ -89,6 +89,7 @@ Thank you for checking out Excel2Word - it's my first app and I am really excite
 
 ## Credits
 This app is built on the [Electron](http://electron.atom.io/) platform
+
 It is based on the excellent [react-electron-boilerplate](https://github.com/chentsulin/electron-react-boilerplate).
 
 
