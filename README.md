@@ -78,9 +78,9 @@ Notice that my closing `{/invoices}` tag is actually on the next page after a pa
 Thank you for checking out Excel2Word - it's my first app and I am really excited about the electron platform. If you have any questions, please feel free to reach out. [Now go download it!](https://github.com/motleydev/excel2word/releases/download/v0.10.0-beta/Excel2Word.zip)
 
 ### List of features to add:
-- [] Add support for row based projects
-- [] Add "clear data" function, right now you have to quit the app and reboot.
-- [] Add ability to change data in the table view.
+- [ ] Add support for row based projects
+- [ ] Add "clear data" function, right now you have to quit the app and reboot.
+- [ ] Add ability to change data in the table view.
 
 ## Credits
 This app is built on the [Electron](http://electron.atom.io/) platform
