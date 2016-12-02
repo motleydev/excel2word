@@ -24,7 +24,7 @@ export default class Table extends Component {
     const { projects } = this.props
     const { serialized } = projects
     const { labels, message, error } = projects.data
-    const anyLabels = labels.filter(label => label.chosen).length > 0
+    const anyLabels = labels ? labels.filter(label => label.chosen).length > 0 : []
     const editor = this.state.columnEditorOpen
     const chosen = labels ? labels.filter(label => label.chosen) : []
     const width = `${((100 / (chosen.length + 1)) * 100) / 100}%`
@@ -55,7 +55,7 @@ export default class Table extends Component {
                     key={index}
                     onClick={() => this.props.toggleLabel(index)}
                   >{label.value}</div>
-                  )
+                )
               })}
             </div> }
 

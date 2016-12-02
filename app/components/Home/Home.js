@@ -226,7 +226,7 @@ export default class Home extends Component {
 
           {!this.state.sheets &&
             <div className={styles.wolf}>
-              <img src="../reference/wolf.png" alt="The head of a wolf" />
+              <img src="../reference/images/wolf.png" alt="The head of a wolf" />
             </div>}
 
           {this.state.parsedSheets.length > 0 &&

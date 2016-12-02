@@ -31,24 +31,24 @@ const getData = (fileName, sheetIndex, opts) => {
   columns.forEach((col) => {
     if (serialized) {
       dataSet[col] = { export: true }
+    } else if (col.indexOf('@!') > -1) {
+      console.log(`skip ${col}`)
     } else {
       dataSet[col] = {}
     }
   })
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     // Loop all the cells
     Object.keys(cells).forEach((key) => {
       const alpha = key.split(/\d/i)[0]
       const numeric = key.split(/[A-Z]{1,}/)[1]
 
       if (columns.has(alpha)) {
+        console.log(cells[`A${numeric}`])
         if (cells[`A${numeric}`] === 'undefined' ||
           cells[`A${numeric}`] == null) {
-          reject({
-            message: 'This worksheet cannot be parsed',
-            error: true,
-          })
+          console.log('errors')
         } else {
           // Add Labels
           columnLabels.add(cleanText(cells[`A${numeric}`].w))
