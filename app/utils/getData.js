@@ -2,7 +2,14 @@ import cleanText from './cleanText'
 
 const xlsx = require('xlsx')
 
-const cDate = new Date().toISOString().substring(0, 10).toString()
+const timeStamp = new Date()
+
+const cDate = {
+  formatted: timeStamp.toISOString().substring(0, 10).toString(),
+  year: timeStamp.getFullYear(),
+  month: timeStamp.getMonth(),
+  raw: timeStamp,
+}
 
 const getData = (fileName, sheetIndex, opts) => {
   const { serialized } = opts
@@ -31,8 +38,6 @@ const getData = (fileName, sheetIndex, opts) => {
   columns.forEach((col) => {
     if (serialized) {
       dataSet[col] = { export: true }
-    } else if (col.indexOf('@!') > -1) {
-      console.log(`skip ${col}`)
     } else {
       dataSet[col] = {}
     }
@@ -45,10 +50,9 @@ const getData = (fileName, sheetIndex, opts) => {
       const numeric = key.split(/[A-Z]{1,}/)[1]
 
       if (columns.has(alpha)) {
-        console.log(cells[`A${numeric}`])
         if (cells[`A${numeric}`] === 'undefined' ||
           cells[`A${numeric}`] == null) {
-          console.log('errors')
+          console.log(`errors with ${cells[`A${numeric}`]}`)
         } else {
           // Add Labels
           columnLabels.add(cleanText(cells[`A${numeric}`].w))

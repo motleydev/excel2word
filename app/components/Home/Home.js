@@ -20,7 +20,10 @@ import Sheet from '../Sheet/Sheet'
 import getData from '../../utils/getData'
 import getSheets from '../../utils/getSheets'
 
-const { dialog } = require('electron').remote
+const electron = require('electron')
+
+const { dialog } = electron.remote
+const shell = electron.shell
 const expressions = require('angular-expressions')
 const Docxtemplater = require('docxtemplater')
 
@@ -142,6 +145,8 @@ export default class Home extends Component {
               parsedObj.cDate = sheet.data.cDate
               result.push(parsedObj)
             } else {
+              dataEntry.cDate = sheet.data.cDate
+              console.log(dataEntry)
               result.push(dataEntry)
             }
           }
@@ -160,6 +165,7 @@ export default class Home extends Component {
       const buf = doc.getZip().generate({ type: 'nodebuffer' })
 
       fs.writeFileSync(`${fileName}.docx`, buf)
+      shell.openItem(`${fileName}.docx`)
     })
   }
 
