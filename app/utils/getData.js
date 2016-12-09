@@ -37,7 +37,7 @@ const getData = (fileName, sheetIndex, opts) => {
   // give that an array value
   columns.forEach((col) => {
     if (serialized) {
-      dataSet[col] = { export: true }
+      dataSet[col] = { export: false }
     } else {
       dataSet[col] = {}
     }
@@ -50,7 +50,7 @@ const getData = (fileName, sheetIndex, opts) => {
       const numeric = key.split(/[A-Z]{1,}/)[1]
 
       if (columns.has(alpha)) {
-        if (cells[`A${numeric}`] === 'undefined' ||
+        if (cells[`A${numeric}`] === 'UNDEFINED!' ||
           cells[`A${numeric}`] == null) {
           console.log(`errors with ${cells[`A${numeric}`]}`)
         } else {
@@ -58,6 +58,7 @@ const getData = (fileName, sheetIndex, opts) => {
           columnLabels.add(cleanText(cells[`A${numeric}`].w))
 
           const newKey = cleanText(cells[`A${numeric}`].w)
+          console.log(cells[key])
           dataSet[alpha][newKey] = (cells[key].w)
         }
       }
